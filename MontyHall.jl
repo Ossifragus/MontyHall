@@ -1,21 +1,47 @@
 using Pkg; Pkg.activate(".")
 
-using Random; Random.seed!(1)
+using Random, Statistics
+Random.seed!(1)
 
-function whichDoor_badcode(👈; nds=3)
-    🚪 = fill("🐐", nds)
-    🚗 = rand(1:nds)
-    🚪[🚗] = "🚗"
-    if 🚪[👈] == "🚗"
-        💁 = rand(setdiff(1:nds, 👈))
+function whichDoor_Rstyle(👈; nds=3)
+    🚪 = collect(1:nds)
+    🚗 = rand(🚪)
+    if 👈 == 🚗
+        💁 = rand(setdiff(🚪, 👈))
     else
-        💁 = rand(setdiff(1:nds, [👈, 🚗]))
+        💁 = rand(setdiff(🚪, [👈, 🚗]))
     end
-    👌 = rand(setdiff(1:nds, [👈, 💁]))
-    return (👈=👈, 🚗=🚗, 👌=👌, 💁=💁)
+    👌 = rand(setdiff(🚪, [👈, 💁]))
+    return 👈, 🚗, 👌, 💁
 end
 
-@time whichDoor_badcode(rand(1:3), nds=3)
+function countMTH_Rstyle(n, whichDoor::Function; nds=3)
+    games = Matrix{Int64}(undef, 4, n)
+    for i in 1:n
+        games[:,i] .= whichDoor(1, nds=nds)
+    end
+    open3 = games[4,:] .== 3
+    open3games = games[:, open3]
+    mean(open3games[1,:] .== open3games[2,:]),
+    mean(open3games[3,:] .== open3games[2,:])
+end
+
+@time countMTH_Rstyle(1, whichDoor_Rstyle)
+@time countMTH_Rstyle(10^6, whichDoor_Rstyle)
+
+function countMTH_Rstyle_Parallel(n, whichDoor::Function; nds=3)
+    games = Matrix{Int64}(undef, 4, n)
+    Threads.@threads for i in 1:n
+        games[:,i] .= whichDoor(1, nds=nds)
+    end
+    open3 = games[4,:] .== 3
+    open3games = games[:, open3]
+    mean(open3games[1,:] .== open3games[2,:]),
+    mean(open3games[3,:] .== open3games[2,:])
+end
+
+@time countMTH_Rstyle_Parallel(1, whichDoor_Rstyle)
+@time countMTH_Rstyle_Parallel(10^6, whichDoor_Rstyle)
 
 function whichDoor(👈; nds=3)
     🚪 = collect(1:nds)
@@ -31,62 +57,106 @@ function whichDoor(👈; nds=3)
         push!(🚪, 🚗)
     end
     👌 = rand(🚪)
-    return (👈=👈, 🚗=🚗, 👌=👌, 💁=💁)
+    return 👈, 🚗, 👌, 💁
 end
 
-@time whichDoor(rand(1:3), nds=3)
+@time countMTH_Rstyle(1, whichDoor)
+@time countMTH_Rstyle(10^6, whichDoor)
+@time countMTH_Rstyle_Parallel(10^6, whichDoor)
 
 function countMTH(n, whichDoor::Function; nds=3)
-    n_keep, n_switch = 0, 0
+    n_keep, n_switch, n_open3 = 0, 0, 0
     for i in 1:n
-        game = whichDoor(3, nds=nds)
-        if game.👈 == game.🚗
-            n_keep += 1
-        elseif game.👌 == game.🚗
-            n_switch += 1
+        game = whichDoor(1, nds=nds)
+        if game[4] == 3
+            n_open3 += 1
+            if game[1] == game[2]
+                n_keep += 1
+            elseif game[3] == game[2]
+                n_switch += 1
+            end
         end
     end
-    return (n_keep, n_switch) ./ n
+    return (n_keep, n_switch) ./ n_open3
 end
 
-@time countMTH(1000000, whichDoor_badcode)
+@time countMTH(1, whichDoor)
+@time countMTH(10^6, whichDoor)
 
-using FLoops
-function countMTHfloop(n, whichDoor::Function; nds=3, nt=Threads.nthreads())
-    @floop ThreadedEx(basesize=n÷nt) for i in 1:n
-        game = whichDoor(3, nds=nds)
-        if game.👈 == game.🚗
-            @reduce n_keep += 1
-        elseif game.👌 == game.🚗
-            @reduce n_switch += 1
+# be careful of data races
+
+mutable struct Counter
+    @atomic n_keep::Int
+    @atomic n_switch::Int
+    @atomic n_open3::Int
+end
+
+function countMTH_ct(n, whichDoor::Function; nds=3)
+    c = Counter(0, 0, 0)
+    Threads.@threads for i in 1:n
+        game = whichDoor(1, nds=nds)
+        if game[4] == 3
+            @atomic c.n_open3 += 1
+            if game[1] == game[2]
+                @atomic c.n_keep += 1
+            elseif game[3] == game[2]
+                @atomic c.n_switch += 1
+            end
         end
     end
-    return (n_keep, n_switch) ./ n
+    return (c.n_keep, c.n_switch) ./ c.n_open3
 end
 
-@time countMTHfloop(1000, whichDoor_badcode)
+@time countMTH_ct(1, whichDoor)
+Random.seed!(1); @time countMTH_ct(10^6, whichDoor)
 
-using BenchmarkTools
-
-function whichDoor2(👈; nds=3)
-    🚪 = collect(1:nds)
-    🚗 = rand(🚪)
-    deleteat!(🚪, 👈)
-    if 👈 == 🚗
-        💁 = popat!(🚪, rand(eachindex(🚪)))
-    else
-        deleteat!(🚪, 🚗 - (🚗 > 👈))
-        💁 = popat!(🚪, rand(eachindex(🚪)))
-        push!(🚪, 🚗)
+function countMTH_mt(n, whichDoor::Function; nds=3)
+    n_keep = Threads.Atomic{Int}(0)
+    n_switch = Threads.Atomic{Int}(0)
+    n_open3 = Threads.Atomic{Int}(0)
+    Threads.@threads for i in 1:n
+        game = whichDoor(1, nds=nds)
+        if game[4] == 3
+            Threads.atomic_add!(n_open3, 1)
+            if game[1] == game[2]
+                Threads.atomic_add!(n_keep, 1)
+            elseif game[3] == game[2]
+                Threads.atomic_add!(n_switch, 1)
+            end
+        end
     end
-    👌 = rand(🚪)
-    return (👈=👈, 🚗=🚗, 👌=👌, 💁=💁)
+    return (n_keep[], n_switch[]) ./ n_open3[]
 end
 
-@time countMTH(1000000, whichDoor_badcode)
-@time countMTH(1000000, whichDoor)
-@time countMTH(1000000, whichDoor2)
+@time countMTH_mt(1, whichDoor)
+Random.seed!(1); @time countMTH_mt(10^6, whichDoor)
 
-@time countMTHfloop(1000000, whichDoor_badcode)
-@time countMTHfloop(1000000, whichDoor)
+# Summary
+
+using Chairmarks
+
+@be countMTH_Rstyle(10^6, whichDoor_Rstyle)
+@be countMTH_Rstyle_Parallel(10^6, whichDoor_Rstyle)
+
+@be countMTH_Rstyle(10^6, whichDoor)
+@be countMTH_Rstyle_Parallel(10^6, whichDoor)
+
+@be countMTH(10^6, whichDoor)
+
+@be countMTH_ct(10^6, whichDoor)
+
+@be countMTH_mt(10^6, whichDoor)
+
+# using BenchmarkTools
+# @benchmark countMTH_Rstyle(10^6, whichDoor_Rstyle)
+# @benchmark countMTH_Rstyle_Parallel(10^6, whichDoor_Rstyle)
+
+# @benchmark countMTH_Rstyle(10^6, whichDoor)
+# @benchmark countMTH_Rstyle_Parallel(10^6, whichDoor)
+
+# @benchmark countMTH(10^6, whichDoor)
+
+# @benchmark countMTH_ct(10^6, whichDoor)
+
+# @benchmark countMTH_mt(10^6, whichDoor)
 

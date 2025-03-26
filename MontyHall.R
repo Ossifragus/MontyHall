@@ -21,4 +21,4 @@ countMTH <- function(n) {
 set.seed(1)
 countMTH(10^4)
 
-system.time(countMTH(10^5))
+system.time(countMTH(10^6))
