@@ -1,4 +1,5 @@
 using Pkg; Pkg.activate(".")
+# BLAS.set_num_threads(1)
 
 using Random, Statistics
 Random.seed!(1)
@@ -15,7 +16,7 @@ function whichDoor_Rstyle(👈; nds=3)
     return 👈, 🚗, 👌, 💁
 end
 
-function countMTH_Rstyle(n, whichDoor::Function; nds=3)
+function countMTH_fill(n, whichDoor::Function; nds=3)
     games = Matrix{Int64}(undef, 4, n)
     for i in 1:n
         games[:,i] .= whichDoor(1, nds=nds)
@@ -26,10 +27,10 @@ function countMTH_Rstyle(n, whichDoor::Function; nds=3)
     mean(open3games[3,:] .== open3games[2,:])
 end
 
-@time countMTH_Rstyle(1, whichDoor_Rstyle)
-@time countMTH_Rstyle(10^6, whichDoor_Rstyle)
+@time countMTH_fill(1, whichDoor_Rstyle)
+@time countMTH_fill(10^6, whichDoor_Rstyle)
 
-function countMTH_Rstyle_Parallel(n, whichDoor::Function; nds=3)
+function countMTH_fill_Parallel(n, whichDoor::Function; nds=3)
     games = Matrix{Int64}(undef, 4, n)
     Threads.@threads for i in 1:n
         games[:,i] .= whichDoor(1, nds=nds)
@@ -40,8 +41,8 @@ function countMTH_Rstyle_Parallel(n, whichDoor::Function; nds=3)
     mean(open3games[3,:] .== open3games[2,:])
 end
 
-@time countMTH_Rstyle_Parallel(1, whichDoor_Rstyle)
-@time countMTH_Rstyle_Parallel(10^6, whichDoor_Rstyle)
+@time countMTH_fill_Parallel(1, whichDoor_Rstyle)
+@time countMTH_fill_Parallel(10^6, whichDoor_Rstyle)
 
 function whichDoor(👈; nds=3)
     🚪 = collect(1:nds)
@@ -60,9 +61,9 @@ function whichDoor(👈; nds=3)
     return 👈, 🚗, 👌, 💁
 end
 
-@time countMTH_Rstyle(1, whichDoor)
-@time countMTH_Rstyle(10^6, whichDoor)
-@time countMTH_Rstyle_Parallel(10^6, whichDoor)
+@time countMTH_fill(1, whichDoor)
+@time countMTH_fill(10^6, whichDoor)
+@time countMTH_fill_Parallel(10^6, whichDoor)
 
 function countMTH(n, whichDoor::Function; nds=3)
     n_keep, n_switch, n_open3 = 0, 0, 0
@@ -135,11 +136,11 @@ Random.seed!(1); @time countMTH_mt(10^6, whichDoor)
 
 using Chairmarks
 
-@be countMTH_Rstyle(10^6, whichDoor_Rstyle)
-@be countMTH_Rstyle_Parallel(10^6, whichDoor_Rstyle)
+@be countMTH_fill(10^6, whichDoor_Rstyle)
+@be countMTH_fill_Parallel(10^6, whichDoor_Rstyle)
 
-@be countMTH_Rstyle(10^6, whichDoor)
-@be countMTH_Rstyle_Parallel(10^6, whichDoor)
+@be countMTH_fill(10^6, whichDoor)
+@be countMTH_fill_Parallel(10^6, whichDoor)
 
 @be countMTH(10^6, whichDoor)
 
@@ -148,11 +149,11 @@ using Chairmarks
 @be countMTH_mt(10^6, whichDoor)
 
 # using BenchmarkTools
-# @benchmark countMTH_Rstyle(10^6, whichDoor_Rstyle)
-# @benchmark countMTH_Rstyle_Parallel(10^6, whichDoor_Rstyle)
+# @benchmark countMTH_fill(10^6, whichDoor_Rstyle)
+# @benchmark countMTH_fill_Parallel(10^6, whichDoor_Rstyle)
 
-# @benchmark countMTH_Rstyle(10^6, whichDoor)
-# @benchmark countMTH_Rstyle_Parallel(10^6, whichDoor)
+# @benchmark countMTH_fill(10^6, whichDoor)
+# @benchmark countMTH_fill_Parallel(10^6, whichDoor)
 
 # @benchmark countMTH(10^6, whichDoor)
 
