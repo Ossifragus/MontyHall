@@ -33,6 +33,7 @@ end
 # Parallel version
 function countMTH_fill_Parallel(n, whichDoor::Function; nds=3)
     games = Matrix{Int64}(undef, 4, n)
+    # adding Threads.@threads is the only change for parallelism
     Threads.@threads for i in 1:n
         games[:,i] .= whichDoor(1, nds=nds)
     end
