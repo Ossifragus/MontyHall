@@ -1,4 +1,4 @@
-#+TITLE: Monty Problem Simulation
+#+TITLE: Monty Hall Problem Simulation
 
 
 Codes for UConn PoM on <2025-03-28 Fri> on the topic: Code got slow? Maybe it's
