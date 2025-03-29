@@ -59,8 +59,8 @@ begin
     (nhost, phost) = size(host)
     loc_host = (nd-nhost)÷2 .+ (1:nhost) .+ 110
     doors = [door door door]
-	  mh, mc, mg = (p .- (ph, pc, pg)) .÷ 2
-	  doors
+    mh, mc, mg = (p .- (ph, pc, pg)) .÷ 2
+    doors
 end
 
 # ╔═╡ d7073324-9bbe-11eb-3acc-17af3ed6547f
