@@ -18,7 +18,7 @@ end
 
 # ╔═╡ 4fe838bd-93b6-41a6-8e6f-560c8f326a42
 begin
-    using Random, Statistics 
+    using Random, Statistics, Downloads
     using PlutoUI, Images, StatsBase # , Distributions
 	Random.seed!(1)
 	
