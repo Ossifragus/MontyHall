@@ -30,6 +30,7 @@ end
 @time countMTH_fill(1, whichDoor_Rstyle)
 @time countMTH_fill(10^6, whichDoor_Rstyle)
 
+# Parallel version
 function countMTH_fill_Parallel(n, whichDoor::Function; nds=3)
     games = Matrix{Int64}(undef, 4, n)
     Threads.@threads for i in 1:n
@@ -44,6 +45,7 @@ end
 @time countMTH_fill_Parallel(1, whichDoor_Rstyle)
 @time countMTH_fill_Parallel(10^6, whichDoor_Rstyle)
 
+# Julia style that reduces allocations
 function whichDoor(👈; nds=3)
     🚪 = collect(1:nds)
     🚗 = rand(🚪)
@@ -67,6 +69,7 @@ end
 
 function countMTH(n, whichDoor::Function; nds=3)
     n_keep, n_switch, n_open3 = 0, 0, 0
+    # Threads.@threads does not work here due to data races
     for i in 1:n
         game = whichDoor(1, nds=nds)
         if game[4] == 3
@@ -84,8 +87,7 @@ end
 @time countMTH(1, whichDoor)
 @time countMTH(10^6, whichDoor)
 
-# be careful of data races
-
+# handle data races with @atomic
 mutable struct Counter
     @atomic n_keep::Int
     @atomic n_switch::Int
@@ -111,6 +113,7 @@ end
 @time countMTH_ct(1, whichDoor)
 Random.seed!(1); @time countMTH_ct(10^6, whichDoor)
 
+# handle data races with atomic operations
 function countMTH_mt(n, whichDoor::Function; nds=3)
     n_keep = Threads.Atomic{Int}(0)
     n_switch = Threads.Atomic{Int}(0)
@@ -147,17 +150,3 @@ using Chairmarks
 @be countMTH_ct(10^6, whichDoor)
 
 @be countMTH_mt(10^6, whichDoor)
-
-# using BenchmarkTools
-# @benchmark countMTH_fill(10^6, whichDoor_Rstyle)
-# @benchmark countMTH_fill_Parallel(10^6, whichDoor_Rstyle)
-
-# @benchmark countMTH_fill(10^6, whichDoor)
-# @benchmark countMTH_fill_Parallel(10^6, whichDoor)
-
-# @benchmark countMTH(10^6, whichDoor)
-
-# @benchmark countMTH_ct(10^6, whichDoor)
-
-# @benchmark countMTH_mt(10^6, whichDoor)
-
