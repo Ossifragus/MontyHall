@@ -39,23 +39,33 @@ begin
         return (👈=👈, 🚗=🚗, 👌=👌, 💁=💁)
     end
 
-    door = load("./images/Wooden_Door_PNG_Clip_Art-2401.png")
-    goat = load("./images/Goat_PNG_Clipart.png")
+    isdir("images") || mkdir("images")
+    pics = ["door", "goat", "car", "hand", "host"] .* [".png"]
+    for pic_name in pics
+        remote_url = "https://raw.githubusercontent.com/Ossifragus/MontyHall/refs/heads/main/MontyHall_Pluto/images/"
+        file_name = joinpath("images", pic_name)
+        isfile(file_name) || Downloads.download(remote_url * pic_name, file_name)
+    end
+
+    door = load(joinpath("images", "door.png"))
+    goat = load(joinpath("images", "goat.png"))
+    car  = load(joinpath("images", "car.png"))
+    hand = load(joinpath("images", "hand.png"))
+    host = load(joinpath("images", "host.png"))
+
+    background = RGBA{N0f8}(0.0, 0.0, 0.0, 0.0)
     goat = imresize(goat, round.(Int64, 200 .* size(goat) ./ size(goat, 2)))
-    nb_goat = goat .!= RGBA{N0f8}(0.0, 0.0, 0.0, 0.0)
-    car = load("./images/Red_Cool_Ferrari_Dino_Car_PNG_Clipart-123R.png")
+    nb_goat = goat .!= background
     car = imresize(car, round.(Int64, 200 .* size(car) ./ size(car, 2)))
-    nb_car = car .!= RGBA{N0f8}(0.0, 0.0, 0.0, 0.0)
-    hand = load("./images/Tuching_Finger_Hand_PNG_Clip_Art-1619.png")
-    nb_hand = hand .!= RGBA{N0f8}(0.0, 0.0, 0.0, 0.0)
+    nb_car = car .!= background
+    nb_hand = hand .!= background
     (nc, pc), (ng, pg) = size(car), size(goat)
     (nd, p),  (nh, ph) = size(door), size(hand)
     loc_car = (nd-nc)÷2 .+ (1:nc)
     loc_goat = (nd-ng)÷2 .+ (1:ng) .- 110
     loc_hand = (nd-nh)÷2 .+ (1:nh)
-    host = load("./images/clipart4466733.png")
     host = imresize(host, round.(Int64, 200 .* size(goat) ./ size(goat, 2)))
-	nb_host = host .!= RGBA{N0f8}(0.0, 0.0, 0.0, 0.0)
+    nb_host = host .!= background
     (nhost, phost) = size(host)
     loc_host = (nd-nhost)÷2 .+ (1:nhost) .+ 110
     doors = [door door door]
@@ -107,10 +117,6 @@ begin
         nothing
     end
 end
-
-# nb = hand .!= RGBA{N0f8}(0.0, 0.0, 0.0, 0.0)
-# hand[nb] .= RGBA{N0f8}(0.0, 0.0, 0.0, 0.0)
-
 
 # ╔═╡ 67562e44-2f38-48c5-b5c2-de351e4334c8
 md"""
