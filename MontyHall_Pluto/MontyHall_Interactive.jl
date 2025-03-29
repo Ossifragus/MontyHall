@@ -122,7 +122,7 @@ end
 md"""
 Let's run the game many times to approximate the probabilities.\
 Number of doors = $(@bind nds NumberField(3:5));\
-number of games = $(@bind n NumberField(10:1000))
+Number of games = $(@bind n NumberField(10:1000))
 """
 
 # ╔═╡ 13165617-6a15-492c-8603-ba1307409d20
@@ -165,6 +165,7 @@ end
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
+Downloads = "f43a241f-c20a-4ad4-852c-f6b1247861c6"
 Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
@@ -183,7 +184,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.11.4"
 manifest_format = "2.0"
-project_hash = "d41e3b1de1aff9f3d5c8c1dcd36ad616fd2ebb10"
+project_hash = "f72e54d4e0a550e148d6c2326b5be5611caa4af8"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
