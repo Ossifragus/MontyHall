@@ -1,3 +1,3 @@
 using Pkg; Pkg.activate(".")
-using Pluto
+import Pluto
 Pluto.run()
