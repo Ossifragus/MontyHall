@@ -19,8 +19,7 @@ end
 # ╔═╡ 4fe838bd-93b6-41a6-8e6f-560c8f326a42
 begin
     using Random, Statistics, Downloads
-    using PlutoUI, Images, StatsBase # , Distributions
-	Random.seed!(1)
+    using PlutoUI, Images, StatsBase 
 	
     function whichDoor(👈; nds=3)
         🚪 = collect(1:nds)
@@ -90,12 +89,12 @@ We use a simulation to find the answer.
 
 # ╔═╡ f892fe78-f6a6-42db-84c5-0b65a17b9d9a
 begin
-	Random.seed!(4)
+	Random.seed!(1)
 md"""
 Your have chosen door: $(@bind 👈 Select(1:3)).\
 The host open a door with goat.\
 Let's see what are behind the doors: 
-$(@bind showhost Select(["hide", "show host", "show all"]))\
+$(@bind showhost Select(["show host", "show all", "hide"]))\
 $(@bind go Button("Another run"))
 """
 end
@@ -122,7 +121,7 @@ end
 md"""
 Let's run the game many times to approximate the probabilities.\
 Number of doors = $(@bind nds NumberField(3:5));\
-Number of games = $(@bind n NumberField(10:1000))
+Number of games = $(@bind n NumberField(50:1000))
 """
 
 # ╔═╡ 13165617-6a15-492c-8603-ba1307409d20

@@ -5,7 +5,7 @@ Codes for UConn PoM on <2025-03-28 Fri> on the topic: Code got slow? Maybe it's
 time to try Julia.
 
 The folder [[file:MontyHall_Pluto][MondyHall_Pluto]] contains a Pluto notebook for playing with Monty Hall
-problem interactively.
+problem interactively. A rendered version of the notebook is available [[https://ossifragus.github.io/MontyHall/MontyHall_Pluto/MontyHall_Interactive.html][here]].
 
 To enjoy the benefit of parallel computation with multiple threads in Julia,
 start Julia with the ~-t~ option. For example the following command starts Julia
