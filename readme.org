@@ -1,0 +1,24 @@
+#+TITLE: Monty Hall Problem Simulation
+
+
+Codes for UConn PoM on <2025-03-28 Fri> on the topic: Code got slow? Maybe it's
+time to try Julia.
+
+The folder [[file:MontyHall_Pluto][MondyHall_Pluto]] contains a Pluto notebook for playing with Monty Hall
+problem interactively. A rendered version of the notebook is available [[https://ossifragus.github.io/MontyHall/MontyHall_Pluto/MontyHall_Interactive.html][here]].
+
+To enjoy the benefit of parallel computation with multiple threads in Julia,
+start Julia with the ~-t~ option. For example the following command starts Julia
+with access to 10 threads:
+
+#+begin_src sh
+julia -t 10
+#+end_src
+
+#+startup: show3levels hideblocks
+#+options: h:1 timestamp:nil date:nil tasks tex:t num:t toc:nil
+#+options: author:nil creator:nil html-postamble:nil HTML_DOCTYPE:HTML5
+#+HTML_HEAD: <base target="_blank">
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="https://ossifragus.github.io/style/github-pandoc.css"/>
+
+
